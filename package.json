@@ -1,0 +1,25 @@
+{
+  "name": "final",
+  "version": "1.0.0",
+  "description": "Final Year B. Tech. Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "author": "Sanket Dhole, Arpit Kharche, Chandrakant Bharambe, Shubham Yadav, Somesh Patil",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "express-session": "^1.16.1",
+    "js-sha256": "^0.9.0",
+    "mysql": "^2.17.1",
+    "mysql2": "^1.6.5",
+    "node-rsa": "^1.0.5",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.11"
+  }
+}
