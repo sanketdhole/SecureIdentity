@@ -42,7 +42,7 @@ remoteRoute.get('/hi', (req, res) => {
 remoteRoute.post('/request', (req, res) => {
     var data = req.body;
     var transation = new Transation(data['from'], data['to'], data['requestData'], req.ip);
-    var block = blockchain.getNextBlock(transation);
+    var block = blockchain.getNextBlock([transation]);
     blockchain.addBlock(block);
     sendBlock(block).then((result) => {
         console.log("Success in serving the blocks :" + result);
