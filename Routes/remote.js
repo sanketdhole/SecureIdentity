@@ -41,8 +41,9 @@ remoteRoute.get('/hi', (req, res) => {
 });
 
 remoteRoute.post('/request', (req, res) => {
-    var data = req.body;
-    var transation = new Transation(data['from'], data['to'], data['requestData'], req.ip);
+    var data = req.body['data'];
+    data = JSON.parse(data);
+    var transation = new Transation(data['from'], data['to'], data['data'], req.ip);
     var block = blockchain.getNextBlock([transation]);
     blockchain.addBlock(block);
     sendBlock(block).then((result) => {
@@ -54,8 +55,14 @@ remoteRoute.post('/request', (req, res) => {
 });
 
 remoteRoute.post('/block', (req, res) => {
-    var block = req.body;
-    console.log(block);
+    var block = req.body['block'];
+    block = JSON.parse(block);
+    fs.readFile(path.join(__dirname,'..','data','profile.json'),(err,data)=>{
+        data = JSON.parse(data);
+        if(block['transactions'][0]['to']['email']==data['email']){
+            console.log(block['transactions'][0]['to']['email']);
+        }
+    });
     blockchain.addBlock(block);
 });
 

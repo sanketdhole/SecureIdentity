@@ -134,7 +134,7 @@ localRouter.post('/request',(req,res)=>{
             self = JSON.parse(self);
             transationData['from']={email:self['email'],public:self['public']};
             var publicKey = new rsa(transationData['to']['public']);
-            transationData['data']=publicKey.encrypt(req.body['data']);
+            transationData['data']=JSON.stringify(publicKey.encrypt(req.body['data']));
             console.log(transationData);
             sendTransation(transationData).then((res)=>{
                 console.log("Send Transation to fixed Host");
