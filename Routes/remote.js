@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 
-const profile = require("../data/profile");
 
 const Transation = require('../blochchain/transaction');
 const block = require('../blochchain/block');
@@ -34,7 +33,9 @@ remoteRoute.get('/hi', (req, res) => {
                 });
             }
         });
-        res.send(JSON.stringify(profile));
+        fs.readFile(path.join(__dirname,'..','data','profile.json'),(err,data)=>{
+            res.send(JSON.parse(data));
+        });
     }
 
 });
