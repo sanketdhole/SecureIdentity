@@ -150,7 +150,8 @@ localRouter.post('/request',(req,res)=>{
 
 localRouter.get('/notification',(req,res)=>{
     if(req.session.loggedin==true){
-        res.sendFile(path.join(__dirname,'..','views','notif.html'));
+        res.render('notif',{});
+        // res.sendFile(path.join(__dirname,'..','views','notif.html'));
     }
     else{
         res.redirect('/login');
@@ -158,7 +159,8 @@ localRouter.get('/notification',(req,res)=>{
 });
 
 localRouter.post('/notification',(req,res)=>{
-    //handle post request for the notification
+    console.log(req.body);
+    res.send('OK');
 });
 
 localRouter.get('/received',(req,res)=>{

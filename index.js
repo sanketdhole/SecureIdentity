@@ -17,7 +17,9 @@ local.use(session({
     secret:'Sanket Dhole',
     resave:false,
     saveUninitialized:false,
-}))
+}));
+local.set('view engine','pug');
+local.set('views','./views');
 
 remote.use(bodyParser.urlencoded({extended:false}));
 
