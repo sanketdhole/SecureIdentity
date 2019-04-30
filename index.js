@@ -7,6 +7,7 @@ const localRouter = require('./Routes/local').localRouter;
 let getHost = require('./Routes/local').getHost;
 const remoteRouter = require('./Routes/remote').remoteRoute;
 
+
 var local = express();
 var remote = express();
 
@@ -16,7 +17,6 @@ local.use(session({
     secret:'Sanket Dhole',
     resave:false,
     saveUninitialized:false,
-    cookie:{secure:true}
 }))
 
 remote.use(bodyParser.urlencoded({extended:false}));

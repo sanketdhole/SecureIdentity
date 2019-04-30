@@ -4,6 +4,7 @@ const fs = require('fs');
 const rsa = require('node-rsa');
 
 const sayHi = require('./communicate').sayHi;
+const sendTransation = require('./communicate').sendTransation;
 
 var localRouter = express.Router();
 let host = ''
@@ -37,6 +38,7 @@ localRouter.post('/ip', (req, res, next) => {
         });}
     }).catch((err) => {
         console.log(err);
+        res.redirect('/login');
     });
 });
 
@@ -49,10 +51,11 @@ localRouter.get('/login', (req, res) => {
 });
 
 localRouter.post('/login', (req, res) => {
+    var recivedData = req.body;
     fs.readFile(path.join(__dirname, '..', 'data', 'userdata.json'), (err, data) => {
         var userData = JSON.parse(data);
-        if (userData['email'] == req.body['email']) {
-            if (userData['password'] == req.body['pass']) {
+        if (userData['email'] == recivedData['email']) {
+            if (userData['password'] == recivedData['pass']) {
                 req.session.loggedin = true;
                 res.redirect('/main')
             } else {
@@ -96,21 +99,77 @@ localRouter.post('/signup', (req, res) => {
 
 localRouter.get('/main', (req, res) => {
     if (req.session.loggedin == true) {
-        res.sendFile(path.join(__dirname, '..', 'views', 'cong.html'));
+        res.sendFile(path.join(__dirname, '..', 'views', 'home.html'));
     } else {
         res.redirect('/login');
     }
 });
 
-localRouter.get('/requestdata',(req, res)=>{
+localRouter.get('/request',(req, res)=>{
     if(req.session.loggedin == true){
-        // logic for getting data
-        var data = {}//this is the dummy data
-        data['ip']=req.ip;
+        res.sendFile(path.join(__dirname,'..','views','req.html'));
     }else{
         res.redirect('/login')
     }
 });
+
+localRouter.post('/request',(req,res)=>{
+    fs.readFile(path.join(__dirname,'..','data','users.json'),(err,data)=>{
+        var transationData = {};
+        data = JSON.parse(data);
+        function selectuser(user, index, users){
+            if(req.body['user']==user['email']){
+                transationData['to']=user;
+            }
+        }
+        data.forEach(selectuser);
+        // for(var i in data){
+        //     console.log(i);
+        //     if(req.body['user']==i['email']){
+        //         transationData['to']=i;
+        //         console.log(transationData);
+        //     }
+        // }
+        fs.readFile(path.join(__dirname,'..','data','userdata.json'),(err,self)=>{
+            self = JSON.parse(self);
+            transationData['from']={email:self['email'],public:self['public']};
+            var publicKey = new rsa(transationData['to']['public']);
+            transationData['data']=publicKey.encrypt(req.body['data']);
+            console.log(transationData);
+            sendTransation(transationData).then((res)=>{
+                console.log("Send Transation to fixed Host");
+                res.send("Send transation to fixed host");
+            }).catch((err)=>{
+                console.log(err);
+                console.log("Can't Send Transation to fixed Host");
+                res.send("Can't send the transation to fixed host");
+            })
+        });
+    });
+});
+
+localRouter.get('/notification',(req,res)=>{
+    if(req.session.loggedin==true){
+        res.sendFile(path.join(__dirname,'..','views','notif.html'));
+    }
+    else{
+        res.redirect('/login');
+    }
+});
+
+localRouter.post('/notification',(req,res)=>{
+    //handle post request for the notification
+});
+
+localRouter.get('/received',(req,res)=>{
+    if(req.session.loggedin==true){
+        res.sendFile(path.join(__dirname,'..','views','show.html'));
+    }
+    else{
+        res.redirect('/login');
+    }
+});
+
 
 function getHost(){
     return host;

@@ -27,6 +27,7 @@ remoteRoute.get('/hi', (req, res) => {
                 console.log(err);
             } else {
                 var iptable = JSON.parse(data);
+                console.log(iptable);
                 iptable.append(ip);
                 fs.writeFile(path.join(__dirname, '..', 'data', 'iptable.json'), JSON.stringify(iptable), (err) => {
                     console.log(err)
@@ -39,8 +40,8 @@ remoteRoute.get('/hi', (req, res) => {
 });
 
 remoteRoute.post('/request', (req, res) => {
-    var data = JSON.parse(req.body);
-    var transation = new Transation(data['from'], data['fromEmail'], data['to'], data['toEmail'], data['requestData'], req.ip);
+    var data = req.body;
+    var transation = new Transation(data['from'], data['to'], data['requestData'], req.ip);
     var block = blockchain.getNextBlock(transation);
     blockchain.addBlock(block);
     sendBlock(block).then((result) => {
@@ -52,7 +53,7 @@ remoteRoute.post('/request', (req, res) => {
 });
 
 remoteRoute.post('/block', (req, res) => {
-    var block = JSON.parse(req.body);
+    var block = req.body;
     console.log(block);
     blockchain.addBlock(block);
 });
