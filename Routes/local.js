@@ -23,19 +23,25 @@ localRouter.get('/ip', (req, res, next) => {
 localRouter.post('/ip', (req, res, next) => {
     host = req.body['ip'];
     sayHi(host).then((body) => {
-        if(body=="OK"){
+        if (body == "OK") {
             res.redirect('/login');
-        }
-        else
-        {var node = JSON.parse(body);
-        fs.readFile(path.join(__dirname, '..', 'data', 'users.json'), (err, result) => {
-            var jsonData = JSON.parse(result);
-            jsonData.push(node);
-            fs.writeFile(path.join(__dirname, '..', 'data', 'users.json'), JSON.stringify(jsonData), (err) => {
-                if(err){console.log(err);}
+        } else {
+            var node = JSON.parse(body);
+            fs.readFile(path.join(__dirname, '..', 'data', 'users.json'), (err, result) => {
+                var jsonData = JSON.parse(result);
+                if (jsonData.indexOf(node) >= 0) {
+                    console.log("Already added the user " + node['email'] + " to users list")
+                } else {
+                    jsonData.push(node);
+                }
+                fs.writeFile(path.join(__dirname, '..', 'data', 'users.json'), JSON.stringify(jsonData), (err) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+                res.redirect('/login');
             });
-            res.redirect('/login');
-        });}
+        }
     }).catch((err) => {
         console.log(err);
         res.redirect('/login');
@@ -81,19 +87,20 @@ localRouter.post('/signup', (req, res) => {
     data['public'] = key.exportKey('public');
     console.log(data);
     var profile = {}
-    profile['email']=data['email'];
-    profile['public']=data['public'];
+    profile['email'] = data['email'];
+    profile['public'] = data['public'];
     fs.writeFile(path.join(__dirname, '..', 'data', 'userdata.json'), JSON.stringify(data),
         (err) => {
-            if(err){
-            console.log(err);}
+            if (err) {
+                console.log(err);
+            }
         });
-    fs.writeFile(path.join(__dirname,'..','data','profile.json'),JSON.stringify(profile),
-    (err)=>{
-        if(err){
-            console.log(err);
-        }
-    })
+    fs.writeFile(path.join(__dirname, '..', 'data', 'profile.json'), JSON.stringify(profile),
+        (err) => {
+            if (err) {
+                console.log(err);
+            }
+        })
     res.redirect('/login');
 });
 
@@ -105,75 +112,70 @@ localRouter.get('/main', (req, res) => {
     }
 });
 
-localRouter.get('/request',(req, res)=>{
-    if(req.session.loggedin == true){
-        res.sendFile(path.join(__dirname,'..','views','req.html'));
-    }else{
+localRouter.get('/request', (req, res) => {
+    if (req.session.loggedin == true) {
+        res.sendFile(path.join(__dirname, '..', 'views', 'req.html'));
+    } else {
         res.redirect('/login')
     }
 });
 
-localRouter.post('/request',(req,res)=>{
-    fs.readFile(path.join(__dirname,'..','data','users.json'),(err,data)=>{
+localRouter.post('/request', (req, res) => {
+    fs.readFile(path.join(__dirname, '..', 'data', 'users.json'), (err, data) => {
         var transationData = {};
         data = JSON.parse(data);
-        function selectuser(user, index, users){
-            if(req.body['user']==user['email']){
-                transationData['to']=user;
+
+        function selectuser(user, index, users) {
+            if (req.body['user'] == user['email']) {
+                transationData['to'] = user;
             }
         }
         data.forEach(selectuser);
-        // for(var i in data){
-        //     console.log(i);
-        //     if(req.body['user']==i['email']){
-        //         transationData['to']=i;
-        //         console.log(transationData);
-        //     }
-        // }
-        fs.readFile(path.join(__dirname,'..','data','userdata.json'),(err,self)=>{
+        fs.readFile(path.join(__dirname, '..', 'data', 'userdata.json'), (err, self) => {
             self = JSON.parse(self);
-            transationData['from']={email:self['email'],public:self['public']};
+            transationData['from'] = {
+                email: self['email'],
+                public: self['public']
+            };
             var publicKey = new rsa(transationData['to']['public']);
-            transationData['data']=JSON.stringify(publicKey.encrypt(req.body['data']));
-            console.log(transationData);
-            sendTransation(transationData).then((res)=>{
+            transationData['data'] = JSON.stringify(publicKey.encrypt(req.body['data']));
+            sendTransation(transationData).then((data) => {
                 console.log("Send Transation to fixed Host");
-                res.send("Send transation to fixed host");
-            }).catch((err)=>{
+                res.send("Sent Transation to Fixed Host");
+            }).catch((err) => {
                 console.log(err);
                 console.log("Can't Send Transation to fixed Host");
                 res.send("Can't send the transation to fixed host");
             })
         });
+
     });
 });
 
-localRouter.get('/notification',(req,res)=>{
-    if(req.session.loggedin==true){
-        res.render('notif',{});
+localRouter.get('/notification', (req, res) => {
+    if (req.session.loggedin == true) {
+        res.render('notif', {});
         // res.sendFile(path.join(__dirname,'..','views','notif.html'));
-    }
-    else{
+    } else {
         res.redirect('/login');
     }
 });
 
-localRouter.post('/notification',(req,res)=>{
+localRouter.post('/notification', (req, res) => {
     console.log(req.body);
     res.send('OK');
 });
 
-localRouter.get('/received',(req,res)=>{
-    if(req.session.loggedin==true){
-        res.sendFile(path.join(__dirname,'..','views','show.html'));
-    }
-    else{
+localRouter.get('/received', (req, res) => {
+    if (req.session.loggedin == true) {
+        res.sendFile(path.join(__dirname, '..', 'views', 'show.html'));
+    } else {
         res.redirect('/login');
     }
 });
 
 
-function getHost(){
+function getHost() {
     return host;
 }
 module.exports = {

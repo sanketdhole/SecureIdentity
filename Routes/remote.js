@@ -26,8 +26,11 @@ remoteRoute.get('/hi', (req, res) => {
                 console.log(err);
             } else {
                 var iptable = JSON.parse(data);
-                console.log(iptable);
+                if(iptable.indexOf(ip)>=0){
+                    console.log("Already added "+ip+" to IP Table");
+                }else{
                 iptable.append(ip);
+                }
                 fs.writeFile(path.join(__dirname, '..', 'data', 'iptable.json'), JSON.stringify(iptable), (err) => {
                     console.log(err)
                 });
@@ -46,6 +49,12 @@ remoteRoute.post('/request', (req, res) => {
     var transation = new Transation(data['from'], data['to'], data['data'], req.ip);
     var block = blockchain.getNextBlock([transation]);
     blockchain.addBlock(block);
+    fs.readFile(path.join(__dirname,'..','data','profile.json'),(err,data)=>{
+        if(block['transactions'][0]['to']['email']==data['email']){
+            //do some thing to resond to request
+            console.log(block['transactions'][0]['data']);
+        }
+    });
     sendBlock(block).then((result) => {
         console.log("Success in serving the blocks :" + result);
         res.send('Success');
@@ -57,10 +66,11 @@ remoteRoute.post('/request', (req, res) => {
 remoteRoute.post('/block', (req, res) => {
     var block = req.body['block'];
     block = JSON.parse(block);
+    console.log(block);
     fs.readFile(path.join(__dirname,'..','data','profile.json'),(err,data)=>{
         data = JSON.parse(data);
         if(block['transactions'][0]['to']['email']==data['email']){
-            console.log(block['transactions'][0]['to']['email']);
+            console.log(block['transactions'][0]['data']);
         }
     });
     blockchain.addBlock(block);

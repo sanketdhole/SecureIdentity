@@ -1,10 +1,10 @@
 
 class Transaction {
 
-  constructor(from, to, requestData, ip ) {
+  constructor(from, to, data, ip ) {
     this.from = from
     this.to = to
-    this.requestData = requestData
+    this.data = data
     this.ip = ip  
 }
 
