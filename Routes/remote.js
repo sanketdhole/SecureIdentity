@@ -81,7 +81,15 @@ remoteRoute.post('/request', (req, res) => {
                 var privateKey = rsa(result['private']);
                 var decryptedData = privateKey.decrypt(bufferedData);
                 decryptedData = decryptedData.toString('utf-8');
-                console.log(decryptedData);
+                var requestObj = {};
+                requestObj['data']=decryptedData;
+                requestObj['from']=block['transactions'][0]['from']['email'];
+                requestObj['ip']=block['transactions'][0]['ip'];
+                fs.writeFile(path.join(__dirname,'..','data','request.json'),JSON.stringify(requestObj),(err)=>{
+                    if(err){
+                        console.log("Error at writing data to file request.json");
+                    }
+                });
             });
         }
     });
