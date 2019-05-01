@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const rsa = require('node-rsa');
 
 
 const Transation = require('../blochchain/transaction');
@@ -15,33 +16,52 @@ let blockchain = new BlockChain(genesisBlock);
 
 var remoteRoute = express.Router();
 
-remoteRoute.get('/hi', (req, res) => {
-    if (req.ip == getHost()) {
+
+remoteRoute.post('/hi',(req,res)=>{
+    if(req.ip==getHost()){
         fixedNode = true;
-        res.send("OK")
-    } else {
+        res.send("OK");
+    }
+    else{
         var ip = req.ip;
-        fs.readFile(path.join(__dirname, '..', 'data', 'iptable.json'), (err, data) => {
-            if (err) {
-                console.log(err);
-            } else {
+        var user = req.body['user'];
+        fs.readFile(path.join(__dirname,'..','data','iptable.json'),(err,data)=>{
+            if(err){
+                console.log("Error while reading file iptable.json");
+            }
+            else{
                 var iptable = JSON.parse(data);
                 if(iptable.indexOf(ip)>=0){
-                    console.log("Already added "+ip+" to IP Table");
-                }else{
-                iptable.append(ip);
+                    console.log("Already added "+ip+" to IP table");
                 }
-                fs.writeFile(path.join(__dirname, '..', 'data', 'iptable.json'), JSON.stringify(iptable), (err) => {
-                    console.log(err)
-                });
+                else{
+                    iptable.push(ip);
+                }
+                fs.writeFile(path.join(__dirname,'..','data','iptable.json'),JSON.stringify(iptable),(err)=>{
+                    if(err){
+                        console.log(err);
+                    }
+                    fs.readFile(path.join(__dirname,'..','data','users.json'),(err,result)=>{
+                        var userslist = JSON.parse(result);
+                        if(userslist.indexOf(user)>=0){
+                            console.log('Already added the user to userslist '+user['email']);
+                        }else{
+                            userslist.push(user);
+                            fs.writeFile(path.join(__dirname,'..','data','users.json'),JSON.stringify(userslist),(err=>{
+                                if(err){
+                                    console.log(err);
+                                }
+                                fs.readFile(path.join(__dirname,'..','data','profile.json'),(err,data)=>{
+                                    res.send(JSON.parse(data));
+                                });
+                            }));
+                        }
+                    });
+                })
             }
         });
-        fs.readFile(path.join(__dirname,'..','data','profile.json'),(err,data)=>{
-            res.send(JSON.parse(data));
-        });
     }
-
-});
+})
 
 remoteRoute.post('/request', (req, res) => {
     var data = req.body['data'];
@@ -49,10 +69,20 @@ remoteRoute.post('/request', (req, res) => {
     var transation = new Transation(data['from'], data['to'], data['data'], req.ip);
     var block = blockchain.getNextBlock([transation]);
     blockchain.addBlock(block);
+    console.log(block);
+    var email = block['transactions'][0]['to']['email'];
     fs.readFile(path.join(__dirname,'..','data','profile.json'),(err,data)=>{
-        if(block['transactions'][0]['to']['email']==data['email']){
+        if(email==data['email']){
             //do some thing to resond to request
-            console.log(block['transactions'][0]['data']);
+            var bufferedData = Buffer.from(JSON.parse(block['transactions'][0]['data']).data);
+            console.log(bufferedData);
+            fs.readFile(path.join(__dirname,'..','data','userdata.json'),(err,data)=>{
+                result = JSON.parse(result);
+                var privateKey = rsa(result['private']);
+                var decryptedData = privateKey.decrypt(bufferedData);
+                decryptedData = decryptedData.toString('utf-8');
+                console.log(decryptedData);
+            });
         }
     });
     sendBlock(block).then((result) => {
