@@ -72,11 +72,12 @@ remoteRoute.post('/request', (req, res) => {
     console.log(block);
     var email = block['transactions'][0]['to']['email'];
     fs.readFile(path.join(__dirname,'..','data','profile.json'),(err,data)=>{
+        data = JSON.parse(data);
         if(email==data['email']){
             //do some thing to resond to request
             var bufferedData = Buffer.from(JSON.parse(block['transactions'][0]['data']).data);
             console.log(bufferedData);
-            fs.readFile(path.join(__dirname,'..','data','userdata.json'),(err,data)=>{
+            fs.readFile(path.join(__dirname,'..','data','userdata.json'),(err,result)=>{
                 result = JSON.parse(result);
                 var privateKey = rsa(result['private']);
                 var decryptedData = privateKey.decrypt(bufferedData);
@@ -108,10 +109,26 @@ remoteRoute.post('/block', (req, res) => {
     fs.readFile(path.join(__dirname,'..','data','profile.json'),(err,data)=>{
         data = JSON.parse(data);
         if(block['transactions'][0]['to']['email']==data['email']){
-            console.log(block['transactions'][0]['data']);
+            var bufferedData = Buffer.from(JSON.parse(block['transations'][0]['data']).data);
+            fs.readFile(path.join(__dirname,'..','data','userdata.json'),(err,result)=>{
+                result = JSON.parse(result);
+                var privateKey = rsa(result['private']);
+                var decryptedData = privateKey.decrypt(bufferedData);
+                decryptedData = decryptedData.toString('utf-8');
+                var requestObj = {};
+                requestObj['data']=decryptedData;
+                requestObj['from']=block['transations'][0]['from']['email'];
+                requestObj['ip']=block['transations'][0]['ip'];
+                fs.writeFile(path.join(__dirname,'..','data','request.json'),JSON.stringify(requestObj),(err)=>{
+                    if(err){
+                        console.log(err);
+                    }
+                });
+            });
         }
     });
     blockchain.addBlock(block);
+    res.send("Success");
 });
 
 function getBlockChain() {
