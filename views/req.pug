@@ -4,41 +4,42 @@ html(lang="en")
         meta(charset="UTF-8")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         meta(http-equiv="X-UA-Compatible", content="ie=edge")
-        title Notification
+        title Request Users
         link(rel="stylesheet", href="/css/signup.css")
         link(rel="stylesheet", href="/css/nav.css")
         link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css")
-        script(src="/js/notif.js") 
+        script(src="/js/notif.js")
     body
-        #main
-            nav
-                ul
-                    li
+        .main
+		    nav
+			    ul
+				    li
                         a(href="/request") REQUEST
-                    li
+				    li
                         a(href="/notification") NOTIFICATION
-                    li
+				    li
                         a(href="/profile") PROFILE
         .signup
-            form(action="/notification", method="post")
-                h2(style={color: '#fff'}) Notifications
-                span From
-                br
-                br
-                span #{req.from}
-                br
-                br
-                span Requested Data
-                br
-                br
-                span #{req.data}
-                br
-                br
-                input(type="text" name="data" placeholder="Data to be send")
-                br
-                br
-                input(type="submit" value="submit" onclick="myFunction()")
+		    form(method="POST")
                 br
                 br
                 br
-                #msg Congragulation you have updated Input Field
+                br 
+			    h2(style={color: "#fff";}) Request Data
+                br
+                br
+			    select(name="user")
+				    option Select User
+                    each user in usersList
+				        option(value=user) #{user} 
+		        br
+                br
+			    input(type="text" name="data" placeholder="Input field")
+			    br
+                br
+                br
+			    input(type="submit" value="submit" onclick="myFunction()")
+                br
+                br
+                br
+				#msg Congragulation you have updated Input Field

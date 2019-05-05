@@ -14,6 +14,8 @@ html(lang="en")
             nav
                 ul
                     li
+                        a(href="/received") RECEIVED DATA
+                    li
                         a(href="/request") REQUEST
                     li
                         a(href="/notification") NOTIFICATION
@@ -34,10 +36,6 @@ html(lang="en")
                 span #{req.data}
                 br
                 br
-                input(type="text" name="data" placeholder="Data to be send")
-                br
-                br
-                input(type="submit" value="submit" onclick="myFunction()")
                 br
                 br
                 br

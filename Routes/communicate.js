@@ -9,6 +9,7 @@ var sayHi = function (host) {
         var url = 'http://' + host + ':3001/hi';
         fs.readFile(path.join(__dirname, '..', 'data', 'profile.json'), (err, data) => {
             var user = JSON.parse(data);
+            user = JSON.stringify(user);
             request.post(url, {
                 form: {
                     user: user
@@ -67,9 +68,35 @@ sendTransation = function (data) {
     });
 }
 
+sendData = function(data){
+    return new Promise((resolve,reject)=>{
+        fs.readFile(path.join(__dirname,'..','data','request.json'),(err,result)=>{
+            result = JSON.parse(result);
+            var url = 'http://'+result['ip']+'/last';
+            fs.readFile(path.join(__dirname,'..','data','profile.json'),(err,profile)=>{
+                var dataObj = {};
+                profile = JSON.parse(profile);
+                dataObj['from'] = profile['email'];
+                dataObj['data'] = data;
+                request.post(url,{form:{result:dataObj}},(err,response,body)=>{
+                    if(err){
+                        console.log("Error at sending data to "+result['ip']);
+                        reject(err);
+                    }
+                    else{
+                        resolve("OK");
+                    }
+                })
+            });
+            
+        });
+    });
+}
+
 
 module.exports = {
     sayHi,
     sendBlock,
-    sendTransation
+    sendTransation,
+    sendData
 }

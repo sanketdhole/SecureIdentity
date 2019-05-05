@@ -5,6 +5,7 @@ const rsa = require('node-rsa');
 
 const sayHi = require('./communicate').sayHi;
 const sendTransation = require('./communicate').sendTransation;
+const sendData = require('./communicate').sendData;
 
 var localRouter = express.Router();
 let host = ''
@@ -114,7 +115,15 @@ localRouter.get('/main', (req, res) => {
 
 localRouter.get('/request', (req, res) => {
     if (req.session.loggedin == true) {
-        res.sendFile(path.join(__dirname, '..', 'views', 'req.html'));
+        fs.readFile(path.join(__dirname,'..','data','users.json'),(err,data)=>{
+            var usersData = JSON.parse(data);
+            var users = [];
+            for(var i=0;i<usersData.length;i++){
+                users.push(usersData['email']);
+            }
+            res.render('req',{usersList:users});
+        });
+        // res.sendFile(path.join(__dirname, '..', 'views', 'req.html'));
     } else {
         res.redirect('/login')
     }
@@ -154,7 +163,10 @@ localRouter.post('/request', (req, res) => {
 
 localRouter.get('/notification', (req, res) => {
     if (req.session.loggedin == true) {
-        res.render('notif', {});
+        fs.readFile(path.join(__dirname,'..','data','request.json'),(err,data)=>{
+            requestData = JSON.parse(data);
+            res.render('notif',{req:requestData});
+        });
         // res.sendFile(path.join(__dirname,'..','views','notif.html'));
     } else {
         res.redirect('/login');
@@ -162,13 +174,22 @@ localRouter.get('/notification', (req, res) => {
 });
 
 localRouter.post('/notification', (req, res) => {
-    console.log(req.body);
-    res.send('OK');
+    console.log(req.body.data);
+    sendData(req.body.data).then((result)=>{
+        console.log("Successfully send data to corresponding user");
+        res.redirect('/notification');
+    }).catch((err)=>{
+        console.log("Error at sending final data"+err);
+        res.send("Error at sending the data");
+    });
 });
 
 localRouter.get('/received', (req, res) => {
     if (req.session.loggedin == true) {
-        res.sendFile(path.join(__dirname, '..', 'views', 'show.html'));
+        fs.readFile(path.join(__dirname,'..','data','result.json'),(err,result)=>{
+            result = JSON.parse(result);
+            res.render('result',{req:result});
+        });
     } else {
         res.redirect('/login');
     }
