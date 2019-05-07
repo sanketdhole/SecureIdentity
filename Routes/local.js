@@ -118,9 +118,10 @@ localRouter.get('/request', (req, res) => {
         fs.readFile(path.join(__dirname,'..','data','users.json'),(err,data)=>{
             var usersData = JSON.parse(data);
             var users = [];
-            for(var i=0;i<usersData.length;i++){
-                users.push(usersData['email']);
+            for(var i=0;i<(usersData.length);i++){
+                users.push(usersData[i]['email']);
             }
+            console.log(users);
             res.render('req',{usersList:users});
         });
         // res.sendFile(path.join(__dirname, '..', 'views', 'req.html'));
