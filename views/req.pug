@@ -11,35 +11,35 @@ html(lang="en")
         script(src="/js/notif.js")
     body
         .main
-		    nav
-			    ul
-				    li
+            nav
+                ul
+                    li
                         a(href="/request") REQUEST
-				    li
+                    li
                         a(href="/notification") NOTIFICATION
-				    li
+                    li
                         a(href="/profile") PROFILE
         .signup
-		    form(method="POST")
+            form(method="POST")
                 br
                 br
                 br
-                br 
-			    h2(style={color: "#fff";}) Request Data
+                br
+                h2(style={color: "#fff"}) Request Data
                 br
                 br
-			    select(name="user")
-				    option Select User
+                select(name="user")
+                    option Select User
                     each user in usersList
-				        option(value=user) #{user} 
-		        br
-                br
-			    input(type="text" name="data" placeholder="Input field")
-			    br
+                        option(value=user) #{user}
                 br
                 br
-			    input(type="submit" value="submit" onclick="myFunction()")
+                input(type="text" name="data" placeholder="Input field")
                 br
                 br
                 br
-				#msg Congragulation you have updated Input Field
+                input(type="submit" value="submit" onclick="myFunction()")
+                br
+                br
+                br
+                #msg Congragulation you have updated Input Field
