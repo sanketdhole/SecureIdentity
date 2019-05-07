@@ -72,12 +72,13 @@ sendData = function(data){
     return new Promise((resolve,reject)=>{
         fs.readFile(path.join(__dirname,'..','data','request.json'),(err,result)=>{
             result = JSON.parse(result);
-            var url = 'http://'+result['ip']+'/last';
+            var url = 'http://'+result['ip']+':3001/last';
             fs.readFile(path.join(__dirname,'..','data','profile.json'),(err,profile)=>{
                 var dataObj = {};
                 profile = JSON.parse(profile);
                 dataObj['from'] = profile['email'];
                 dataObj['data'] = data;
+                dataObj = JSON.stringify(dataObj);
                 request.post(url,{form:{result:dataObj}},(err,response,body)=>{
                     if(err){
                         console.log("Error at sending data to "+result['ip']);

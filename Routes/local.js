@@ -189,6 +189,7 @@ localRouter.get('/received', (req, res) => {
     if (req.session.loggedin == true) {
         fs.readFile(path.join(__dirname,'..','data','result.json'),(err,result)=>{
             result = JSON.parse(result);
+            result = JSON.parse(result);
             res.render('result',{req:result});
         });
     } else {

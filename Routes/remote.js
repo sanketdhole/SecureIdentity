@@ -133,7 +133,6 @@ remoteRoute.post('/block', (req, res) => {
 
 remoteRoute.post('/last',(req,res)=>{
     var result = req.body['result'];
-    result = JSON.stringify(result);
     fs.writeFile(path.join(__dirname,'..','data','result.json'),JSON.stringify(result),(err)=>{
         if(err){
             console.log("error in writing the data to file result.json");
